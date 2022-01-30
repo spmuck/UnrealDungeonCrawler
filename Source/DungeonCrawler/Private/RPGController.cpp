@@ -16,7 +16,6 @@ void ARPGController::BeginPlay()
 			if(HudWidget)
 			{
 				HudWidget->AddToViewport();
-				UpdateCharacterStatsBlueprintUI();
 			}
 		}
 	}
