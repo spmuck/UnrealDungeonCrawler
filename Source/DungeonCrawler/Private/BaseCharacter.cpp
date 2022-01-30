@@ -151,8 +151,8 @@ void ABaseCharacter::ServerPrimaryAttack_Implementation()
 
 void ABaseCharacter::PlayAnimMontageAndSound_Implementation(UAnimMontage* MontageToPlay, USoundBase* SoundBase, const FName& MontageSectionName)
 {
-	ReceivePrimaryAttack.Broadcast();
-	//PlayAnimMontage(MontageToPlay, 1.0f, MontageSectionName);
+	//ReceivePrimaryAttack.Broadcast();
+	PlayAnimMontage(MontageToPlay, 1.0f, MontageSectionName);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundBase, GetActorLocation());
 }
 

@@ -23,14 +23,14 @@ protected:
 	ABaseCharacter* BaseCharacter;
 	// The class that will be used for the players Stat bar UI
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	TSubclassOf<class UUserWidget> StatBarUIClass;
+	TSubclassOf<class UUserWidget> HudWidgetClass;
 
 	UPROPERTY(EditAnywhere, Category="Player")
 	TSubclassOf<class ABaseCharacter> CharacterClass;
 
 	// The instance of the players stat bar Widget
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	UUserWidget* StatBarWidget;
+	UUserWidget* HudWidget;
 	
 	UFUNCTION()
 	void UpdateCharacterStats(FCharacterStats CharacterStats);

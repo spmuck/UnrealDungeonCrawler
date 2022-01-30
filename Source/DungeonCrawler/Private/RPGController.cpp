@@ -10,12 +10,13 @@ void ARPGController::BeginPlay()
 	Super::BeginPlay();
 	if(IsLocalController())
 	{
-		if(StatBarUIClass && !StatBarWidget)
+		if(HudWidgetClass && !HudWidget)
 		{
-			StatBarWidget = CreateWidget<UUserWidget>(this, StatBarUIClass);
-			if(StatBarWidget)
+			HudWidget = CreateWidget<UUserWidget>(this, HudWidgetClass);
+			if(HudWidget)
 			{
-				StatBarWidget->AddToViewport();
+				HudWidget->AddToViewport();
+				UpdateCharacterStatsBlueprintUI();
 			}
 		}
 	}
