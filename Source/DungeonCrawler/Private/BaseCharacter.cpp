@@ -3,8 +3,6 @@
 
 #include "BaseCharacter.h"
 
-#include "CharacterAnimationBlueprint.h"
-#include "RPGController.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -138,7 +136,9 @@ FCharacterStats ABaseCharacter::GetCharacterStats()
 void ABaseCharacter::MultiKillCharacter_Implementation()
 {
 	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->SetAvoidanceEnabled(false);
 	GetCapsuleComponent()->SetCollisionProfileName(FName("Ragdoll"));
+	SetActorTickEnabled(false);
 	StopAnimMontage();
 	ReceiveDeathEvent.Broadcast();
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("You dead"));

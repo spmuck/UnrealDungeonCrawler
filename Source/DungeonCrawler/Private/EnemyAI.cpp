@@ -43,6 +43,14 @@ void AEnemyAI::ResetCurrentlyAttacking()
 	ChasePlayer();
 }
 
+void AEnemyAI::MultiKillCharacter()
+{
+	Super::MultiKillCharacter();
+	PawnSensingComponent->Deactivate();
+	CharacterTarget = nullptr;
+	SetActorTickEnabled(false);
+}
+
 void AEnemyAI::ChasePlayer()
 {
 	AAIController* AIController = Cast<AAIController>(GetController());
@@ -74,7 +82,7 @@ void AEnemyAI::Tick(float DeltaSeconds)
 
 void AEnemyAI::OnPawnSeen(APawn* SeenPawn)
 {
-	if(!CharacterTarget && SeenPawn->ActorHasTag(FName("Player")))
+	if(!CharacterTarget && SeenPawn->ActorHasTag(FName("Player")) && !bDead)
 	{
 		ABaseCharacter* SeenCharacter = Cast<ABaseCharacter>(SeenPawn);
 		if(SeenCharacter)

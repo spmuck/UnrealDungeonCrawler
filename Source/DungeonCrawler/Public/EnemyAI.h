@@ -52,6 +52,7 @@ protected:
 	void ResetCharacterTarget();
 public:
 	virtual void ResetCurrentlyAttacking() override;
+	virtual void MultiKillCharacter() override;
 
 	UFUNCTION()
 	void ChasePlayer();

@@ -96,7 +96,7 @@ public:
 	void BlockedAttackFX();
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
-	void MultiKillCharacter();
+	virtual void MultiKillCharacter();
 
 	UFUNCTION(Server, Reliable)
 	void ServerPrimaryAttack();
