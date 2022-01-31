@@ -59,12 +59,20 @@ void ABaseCharacter::TakeAnyDamage_Implementation(AActor* DamagedActor, float Da
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Received %f damage"),Damage));
 	if (!bDead)
 	{
-		CharacterStats.Health -= Damage;
-		if(CharacterStats.Health <= 0)
+		if (!IsDamageBlocked(DamageCauser))
 		{
-			bDead = true;
-			CharacterStats.Health = 0;
-			MultiKillCharacter();
+			CharacterStats.Health -= Damage;
+			if(CharacterStats.Health <= 0)
+			{
+				bDead = true;
+				CharacterStats.Health = 0;
+				MultiKillCharacter();
+			}
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Blocked same damage"));
+			BlockedAttackFX();
 		}
 	}
 	//this is only run on server, so this wont execute in a networked situation, but is needed for standalone mode.
@@ -72,6 +80,26 @@ void ABaseCharacter::TakeAnyDamage_Implementation(AActor* DamagedActor, float Da
 	{
 		OnUpdateCharacterStats.Broadcast(CharacterStats);
 	}
+}
+
+void ABaseCharacter::BlockedAttackFX_Implementation()
+{
+	ReceiveBlockedAttackEvent.Broadcast();
+}
+
+bool ABaseCharacter::IsDamageBlocked(AActor* DamageCauser)
+{
+	//If we are not currently blocking, don't run block direction check
+	if(!bCurrentlyBlocking) return false;
+	//Check if damage causer is infront of the current actor.
+	FVector BlockingActorXYForwardVector = FVector(GetActorForwardVector().X, GetActorForwardVector().Y,0.0);
+	BlockingActorXYForwardVector.Normalize(0.0001);
+	FVector DirectionFromDamageCauserToDamagedActor = GetActorLocation() - DamageCauser->GetActorLocation();
+	FVector DamageCauserToBlockingActorXYVector = FVector(DirectionFromDamageCauserToDamagedActor.X,DirectionFromDamageCauserToDamagedActor.Y, 0.0);
+	DamageCauserToBlockingActorXYVector.Normalize(0.0001);
+	float dotProduct = FVector::DotProduct(BlockingActorXYForwardVector, DamageCauserToBlockingActorXYVector);
+	bool IsInFrontOf =  dotProduct <= -0.4;
+	return IsInFrontOf;
 }
 
 // Called every frame

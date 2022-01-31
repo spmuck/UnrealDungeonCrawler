@@ -24,6 +24,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUpdateCharacterStatsSignature, FCha
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathEventSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBlockingStateChangedSignature, bool, IsBlocking);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPrimaryAttackSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBlockedAttackSignature);
 
 UCLASS()
 class DUNGEONCRAWLER_API ABaseCharacter : public ACharacter
@@ -73,6 +74,8 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void TakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser );
+
+	bool IsDamageBlocked(AActor* DamageCauser);
 	
 public:	
 	// Called every frame
@@ -88,6 +91,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable, Category="Animation")
 	void BlockingStateChanged(bool IsBlocking);
+
+	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable, Category="Animation")
+	void BlockedAttackFX();
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void MultiKillCharacter();
@@ -115,6 +121,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FBlockingStateChangedSignature ReceiveBlockingStateChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FBlockedAttackSignature ReceiveBlockedAttackEvent;
 
 	UPROPERTY(BlueprintAssignable)
 	FPrimaryAttackSignature ReceivePrimaryAttack;

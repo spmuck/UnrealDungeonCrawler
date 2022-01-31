@@ -15,6 +15,8 @@ void ARangedEnemyAI::ShootProjectile_Implementation()
 		//Set Spawn Collision Handling Override
 		FActorSpawnParameters ActorSpawnParams;
 		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ActorSpawnParams.Owner = this;
+		ActorSpawnParams.Instigator = this;
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, GetActorLocation() + (GetActorForwardVector() * 40) , GetActorRotation(),ActorSpawnParams);
 	}
 }
