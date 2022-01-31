@@ -4,12 +4,15 @@
 #include "EnemyAI.h"
 
 #include "AIController.h"
-#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Perception/PawnSensingComponent.h"
 
 AEnemyAI::AEnemyAI()
 {
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+	SetActorTickEnabled(false);
 	Tags.Add(FName("Enemy"));
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -31,6 +34,7 @@ void AEnemyAI::MoveCompleted(FAIRequestID RquestID, EPathFollowingResult::Type R
 void AEnemyAI::ResetCharacterTarget()
 {
 	CharacterTarget = nullptr;
+	SetActorTickEnabled(false);
 }
 
 void AEnemyAI::ResetCurrentlyAttacking()
@@ -58,6 +62,16 @@ void AEnemyAI::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifet
 	DOREPLIFETIME(AEnemyAI, CharacterTarget);
 }
 
+void AEnemyAI::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if(CharacterTarget)
+	{
+		FRotator RotationToTarget = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CharacterTarget->GetActorLocation());
+		SetActorRotation(RotationToTarget);
+	}
+}
+
 void AEnemyAI::OnPawnSeen(APawn* SeenPawn)
 {
 	if(!CharacterTarget && SeenPawn->ActorHasTag(FName("Player")))
@@ -66,6 +80,7 @@ void AEnemyAI::OnPawnSeen(APawn* SeenPawn)
 		if(SeenCharacter)
 		{
 			CharacterTarget = SeenCharacter;
+			SetActorTickEnabled(true);
 			SeenCharacter->ReceiveDeathEvent.AddDynamic(this, &AEnemyAI::ResetCharacterTarget);
 			ChasePlayer();
 		}

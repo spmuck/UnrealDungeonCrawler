@@ -28,6 +28,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category= "Components")
 	UPawnSensingComponent* PawnSensingComponent;
 
+	virtual void Tick(float DeltaSeconds) override;
+
 	UFUNCTION()
 	void OnPawnSeen(APawn* SeenPawn);
 
