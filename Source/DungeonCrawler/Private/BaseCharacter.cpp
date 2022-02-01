@@ -24,15 +24,6 @@ void ABaseCharacter::BeginPlay()
 	
 }
 
-void ABaseCharacter::OnRep_CharacterStats()
-{
-	//Won't execute in standalone mode, but needed for networked clients. 
-	if(IsLocallyControlled())
-	{
-		OnUpdateCharacterStats.Broadcast(CharacterStats);
-	}
-}
-
 FName ABaseCharacter::GetRandomSectionName(TArray<FName> SectionNames)
 {
 	if(SectionNames.Num() > 0)
@@ -73,11 +64,7 @@ void ABaseCharacter::TakeAnyDamage_Implementation(AActor* DamagedActor, float Da
 			BlockedAttackFX();
 		}
 	}
-	//this is only run on server, so this wont execute in a networked situation, but is needed for standalone mode.
-	if(IsLocallyControlled())
-	{
-		OnUpdateCharacterStats.Broadcast(CharacterStats);
-	}
+	CharacterStatsChanged(CharacterStats);
 }
 
 void ABaseCharacter::BlockedAttackFX_Implementation()
@@ -116,6 +103,11 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ABaseCharacter::CharacterStatsChanged_Implementation(FCharacterStats NewCharacterStats)
+{
+	OnUpdateCharacterStats.Broadcast(NewCharacterStats);
 }
 
 void ABaseCharacter::BlockingStateChanged_Implementation(bool IsBlocking)

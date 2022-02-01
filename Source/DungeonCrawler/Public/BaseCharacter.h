@@ -39,12 +39,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(ReplicatedUsing=OnRep_CharacterStats)
+	UPROPERTY(Replicated)
 	FCharacterStats CharacterStats;
-
-	UFUNCTION()
-	void OnRep_CharacterStats();
-
+	
 	FName GetRandomSectionName(TArray<FName> SectionNames);
 
 	UPROPERTY(Replicated, EditInstanceOnly, Category="Core")
@@ -91,6 +88,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable, Category="Animation")
 	void BlockingStateChanged(bool IsBlocking);
+
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable, Category="Animation")
+	void CharacterStatsChanged(FCharacterStats NewCharacterStats);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable, Category="Animation")
 	void BlockedAttackFX();
