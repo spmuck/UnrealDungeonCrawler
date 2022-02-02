@@ -110,7 +110,7 @@ public:
 	void ServerBlock(bool IsBlocking);
 	
 	UFUNCTION(Server, Reliable)
-	void ServerAbility1();
+	virtual void ServerAbility1();
 
 	UFUNCTION(Server, Reliable)
 	void ServerAbility2();

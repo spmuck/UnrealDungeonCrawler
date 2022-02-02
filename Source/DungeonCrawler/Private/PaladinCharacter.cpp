@@ -35,11 +35,52 @@ void APaladinCharacter::BeginPlay()
 	//keep super call
 	Super::BeginPlay();
 	MeleeHitbox->OnComponentBeginOverlap.AddDynamic(this, &APaladinCharacter::OnMeleeHitboxBeingOverlap);
+	DashHitbox->OnComponentBeginOverlap.AddDynamic(this, &APaladinCharacter::OnDashHitboxBeginOverlap);
+
+	if(DashCurveFloat)
+	{
+		FOnTimelineFloat TimelineProgress;
+		FOnTimelineEventStatic TimelineFinishedCallback;
+		TimelineProgress.BindUFunction(this, FName("DashTimelineProgress"));
+		TimelineFinishedCallback.BindUFunction(this, FName("DashFinished"));
+		DashTimeline.AddInterpFloat(DashCurveFloat, TimelineProgress);
+		DashTimeline.SetTimelineFinishedFunc(TimelineFinishedCallback);
+		DashTimeline.SetLooping(false);
+		DashTimeline.SetTimelineLengthMode(TL_TimelineLength);
+		DashTimeline.SetTimelineLength(0.25);
+	}
+}
+
+void APaladinCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	DashTimeline.TickTimeline(DeltaSeconds);
+}
+
+void APaladinCharacter::ServerAbility1_Implementation()
+{
+	if(CastIfEnoughMana(20))
+	{
+		MultiDash();
+		bCurrentlyAttacking = true;
+		MultiCharacterStatsChanged(CharacterStats);
+	}
 }
 
 bool APaladinCharacter::ActorIsEnemy(AActor* OtherActor)
 {
 	return OtherActor->ActorHasTag(FName(TEXT("Enemy")));
+}
+
+void APaladinCharacter::DashTimelineProgress(float Value)
+{
+	FVector NewLocation = FMath::Lerp(StartLocation, EndLocation, Value);
+	SetActorLocation(NewLocation);
+}
+
+void APaladinCharacter::DashFinished()
+{
+	bCurrentlyAttacking = false;
 }
 
 void APaladinCharacter::OnMeleeHitboxBeingOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -52,10 +93,39 @@ void APaladinCharacter::OnMeleeHitboxBeingOverlap(UPrimitiveComponent* Overlappe
 	
 }
 
+void APaladinCharacter::MultiDash_Implementation()
+{
+	//set start location of dash and default end location if nothing is hit
+	StartLocation = GetActorLocation();
+	EndLocation  = GetActorLocation() + (DashDistance * GetActorForwardVector());
+
+	//check for object in dash trace channel to see if we need to change EndLocation to be a valid location.
+	FHitResult Hit;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+	if(GetWorld()->LineTraceSingleByChannel(Hit,StartLocation, EndLocation, ECC_GameTraceChannel1, QueryParams))
+	{
+		EndLocation = Hit.ImpactPoint;
+		
+	}
+	//enable collisions to start checking for collisions
+	DashHitbox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//start dash timeline
+	DashTimeline.PlayFromStart();
+}
 
 
 void APaladinCharacter::ChangePrimaryHitboxCollisionType_Implementation(ECollisionEnabled::Type CollisionType)
 {
 	MeleeHitbox->SetCollisionEnabled(CollisionType);
+}
+
+void APaladinCharacter::OnDashHitboxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if(HasAuthority() && ActorIsEnemy(OtherActor))
+	{
+		UGameplayStatics::ApplyDamage(OtherActor, 100.0f,GetController(), this, UDamageType::StaticClass());
+	}
 }
 

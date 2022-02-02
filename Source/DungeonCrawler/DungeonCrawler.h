@@ -4,3 +4,5 @@
 
 #include "CoreMinimal.h"
 
+#define DASH_CHANNEL ECC_GameTraceChannel1
+
