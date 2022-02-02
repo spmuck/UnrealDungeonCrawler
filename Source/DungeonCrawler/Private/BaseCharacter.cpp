@@ -61,13 +61,13 @@ void ABaseCharacter::TakeAnyDamage_Implementation(AActor* DamagedActor, float Da
 		else
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Blocked same damage"));
-			BlockedAttackFX();
+			MultiBlockedAttackFX();
 		}
 	}
-	CharacterStatsChanged(CharacterStats);
+	MultiCharacterStatsChanged(CharacterStats);
 }
 
-void ABaseCharacter::BlockedAttackFX_Implementation()
+void ABaseCharacter::MultiBlockedAttackFX_Implementation()
 {
 	ReceiveBlockedAttackEvent.Broadcast();
 }
@@ -87,6 +87,19 @@ bool ABaseCharacter::IsDamageBlocked(AActor* DamageCauser)
 	return IsInFrontOf;
 }
 
+//call when casting spells to subtract mana cost if character has enough mana. Return true if mana cost was payed or false if it was unable to be paid.
+//only call from authority (server if in multiplayer mode)
+bool ABaseCharacter::CastIfEnoughMana(int32 ManaCost)
+{
+	if(HasAuthority() && (CharacterStats.Mana - ManaCost >=0))
+	{
+		CharacterStats.Mana -= ManaCost;
+		return true;
+	}
+	return false;
+}
+
+
 // Called every frame
 void ABaseCharacter::Tick(float DeltaTime)
 {
@@ -105,12 +118,12 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 }
 
-void ABaseCharacter::CharacterStatsChanged_Implementation(FCharacterStats NewCharacterStats)
+void ABaseCharacter::MultiCharacterStatsChanged_Implementation(FCharacterStats NewCharacterStats)
 {
 	OnUpdateCharacterStats.Broadcast(NewCharacterStats);
 }
 
-void ABaseCharacter::BlockingStateChanged_Implementation(bool IsBlocking)
+void ABaseCharacter::MultiBlockingStateChanged_Implementation(bool IsBlocking)
 {
 	ReceiveBlockingStateChanged.Broadcast(IsBlocking);
 }
@@ -142,6 +155,11 @@ void ABaseCharacter::ServerAbility2_Implementation()
 
 void ABaseCharacter::ServerAbility1_Implementation()
 {
+	if(CastIfEnoughMana(20))
+	{
+		
+	}
+	MultiCharacterStatsChanged(CharacterStats);
 }
 
 void ABaseCharacter::ServerBlock_Implementation(bool IsBlocking)
@@ -149,12 +167,12 @@ void ABaseCharacter::ServerBlock_Implementation(bool IsBlocking)
 	if(!bCurrentlyAttacking && !bDead)
 	{
 		bCurrentlyBlocking = IsBlocking;
-		BlockingStateChanged(IsBlocking);
+		MultiBlockingStateChanged(IsBlocking);
 	}
 	else
 	{
 		bCurrentlyBlocking = false;
-		BlockingStateChanged(false);
+		MultiBlockingStateChanged(false);
 	}
 }
 
@@ -164,12 +182,12 @@ void ABaseCharacter::ServerPrimaryAttack_Implementation()
 	{
 		bCurrentlyAttacking = true;
 		GetWorldTimerManager().SetTimer(TimerHandle_CurrentlyAttackingTImer, this, &ABaseCharacter::ResetCurrentlyAttacking, PrimaryAttackTime, false);
-		PlayAnimMontageAndSound(AttackMontage, AttackSound, GetRandomSectionName(AttackMontageSections));
+		MultiPlayAnimMontageAndSound(AttackMontage, AttackSound, GetRandomSectionName(AttackMontageSections));
 	}
 	
 }
 
-void ABaseCharacter::PlayAnimMontageAndSound_Implementation(UAnimMontage* MontageToPlay, USoundBase* SoundBase, const FName& MontageSectionName)
+void ABaseCharacter::MultiPlayAnimMontageAndSound_Implementation(UAnimMontage* MontageToPlay, USoundBase* SoundBase, const FName& MontageSectionName)
 {
 	//ReceivePrimaryAttack.Broadcast();
 	PlayAnimMontage(MontageToPlay, 1.0f, MontageSectionName);

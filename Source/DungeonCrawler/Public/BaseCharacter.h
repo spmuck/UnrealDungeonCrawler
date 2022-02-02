@@ -73,6 +73,8 @@ protected:
 	void TakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser );
 
 	bool IsDamageBlocked(AActor* DamageCauser);
+
+	bool CastIfEnoughMana(int32 ManaCost);
 	
 public:	
 	// Called every frame
@@ -84,16 +86,16 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable, Category="Animation")
-	void PlayAnimMontageAndSound(UAnimMontage* MontageToPlay, USoundBase* SoundBase, const FName& MontageSectionName);
+	void MultiPlayAnimMontageAndSound(UAnimMontage* MontageToPlay, USoundBase* SoundBase, const FName& MontageSectionName);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable, Category="Animation")
-	void BlockingStateChanged(bool IsBlocking);
+	void MultiBlockingStateChanged(bool IsBlocking);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable, Category="Animation")
-	void CharacterStatsChanged(FCharacterStats NewCharacterStats);
+	void MultiCharacterStatsChanged(FCharacterStats NewCharacterStats);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable, Category="Animation")
-	void BlockedAttackFX();
+	void MultiBlockedAttackFX();
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	virtual void MultiKillCharacter();

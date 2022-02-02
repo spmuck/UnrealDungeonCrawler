@@ -25,6 +25,7 @@ protected:
 	void MoveRight(float AxisValue);
 	void PrimaryAttack();
 	void Blocking(bool IsBlocking);
+	virtual void Ability1();
 	DECLARE_DELEGATE_OneParam(FBlockingDelegate, bool);
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
