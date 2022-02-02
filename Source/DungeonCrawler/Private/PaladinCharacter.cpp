@@ -4,6 +4,7 @@
 #include "PaladinCharacter.h"
 
 #include "Components/BoxComponent.h"
+#include "DungeonCrawler/DungeonCrawler.h"
 #include "Kismet/GameplayStatics.h"
 
 APaladinCharacter::APaladinCharacter()
@@ -103,7 +104,7 @@ void APaladinCharacter::MultiDash_Implementation()
 	FHitResult Hit;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
-	if(GetWorld()->LineTraceSingleByChannel(Hit,StartLocation, EndLocation, ECC_GameTraceChannel1, QueryParams))
+	if(GetWorld()->LineTraceSingleByChannel(Hit,StartLocation, EndLocation, DASH_CHANNEL, QueryParams))
 	{
 		EndLocation = Hit.ImpactPoint;
 		
@@ -112,6 +113,7 @@ void APaladinCharacter::MultiDash_Implementation()
 	DashHitbox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	//start dash timeline
 	DashTimeline.PlayFromStart();
+	ReceiveAbility1Event.Broadcast();
 }
 
 

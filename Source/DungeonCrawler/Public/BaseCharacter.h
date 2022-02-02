@@ -25,6 +25,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathEventSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBlockingStateChangedSignature, bool, IsBlocking);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPrimaryAttackSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBlockedAttackSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAbility1TriggerSignature);
 
 UCLASS()
 class DUNGEONCRAWLER_API ABaseCharacter : public ACharacter
@@ -129,6 +130,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FPrimaryAttackSignature ReceivePrimaryAttack;
+
+	UPROPERTY(BlueprintAssignable)
+	FAbility1TriggerSignature ReceiveAbility1Event;
 
 	UFUNCTION(BlueprintCallable)
 	FCharacterStats GetCharacterStats();
