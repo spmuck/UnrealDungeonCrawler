@@ -26,6 +26,7 @@ protected:
 	void PrimaryAttack();
 	void Blocking(bool IsBlocking);
 	virtual void Ability1();
+	virtual void Ability2();
 	DECLARE_DELEGATE_OneParam(FBlockingDelegate, bool);
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")

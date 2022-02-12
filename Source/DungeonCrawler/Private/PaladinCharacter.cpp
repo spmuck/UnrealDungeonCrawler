@@ -3,6 +3,7 @@
 
 #include "PaladinCharacter.h"
 
+#include "EnemyAI.h"
 #include "Components/BoxComponent.h"
 #include "DungeonCrawler/DungeonCrawler.h"
 #include "Kismet/GameplayStatics.h"
@@ -31,13 +32,17 @@ APaladinCharacter::APaladinCharacter()
 	DashHitbox->SetCollisionProfileName(TEXT("Hitbox"));
 }
 
+void APaladinCharacter::MultiShockwave_Implementation()
+{
+	ReceiveAbility2Event.Broadcast();
+}
+
 void APaladinCharacter::BeginPlay()
 {
 	//keep super call
 	Super::BeginPlay();
 	MeleeHitbox->OnComponentBeginOverlap.AddDynamic(this, &APaladinCharacter::OnMeleeHitboxBeingOverlap);
 	DashHitbox->OnComponentBeginOverlap.AddDynamic(this, &APaladinCharacter::OnDashHitboxBeginOverlap);
-
 	if(DashCurveFloat)
 	{
 		FOnTimelineFloat TimelineProgress;
@@ -66,6 +71,37 @@ void APaladinCharacter::ServerAbility1_Implementation()
 		bCurrentlyAttacking = true;
 		MultiCharacterStatsChanged(CharacterStats);
 	}
+}
+
+void APaladinCharacter::ServerAbility2_Implementation()
+{
+	if(CastIfEnoughMana(20))
+	{
+		TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjectTypes;
+		TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+
+		// Ignore any specific actors
+		TArray<AActor*> IgnoreActors;
+		// Ignore self or remove this line to not ignore any
+		IgnoreActors.Init(this, 1);
+		// Array of actors that are inside the radius of the sphere
+		TArray<AActor*> OutActors;
+		UClass* SearchClass = AEnemyAI::StaticClass();
+		UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetActorLocation(), ShockwaveRadius,TraceObjectTypes, SearchClass,IgnoreActors, OutActors);
+		
+		// Finally iterate over the outActor array
+		for (AActor* OverlappedActor : OutActors) {
+			AEnemyAI* EnemyAI = Cast<AEnemyAI>(OverlappedActor);
+			if(EnemyAI)
+			{
+				UGameplayStatics::ApplyDamage(EnemyAI, 100.0f,GetController(), this, UDamageType::StaticClass());
+			}
+		}
+		MultiShockwave();
+		bCurrentlyAttacking = true;
+		MultiCharacterStatsChanged(CharacterStats);
+	}
+	
 }
 
 bool APaladinCharacter::ActorIsEnemy(AActor* OtherActor)

@@ -51,7 +51,7 @@ protected:
 	UFUNCTION()
 	void ResetCharacterTarget();
 public:
-	virtual void ResetCurrentlyAttacking() override;
+	virtual void SetCurrentlyAttacking(bool NewCurrentlyAttacking) override;
 	virtual void MultiKillCharacter() override;
 
 	UFUNCTION()

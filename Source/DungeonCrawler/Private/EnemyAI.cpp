@@ -37,9 +37,9 @@ void AEnemyAI::ResetCharacterTarget()
 	SetActorTickEnabled(false);
 }
 
-void AEnemyAI::ResetCurrentlyAttacking()
+void AEnemyAI::SetCurrentlyAttacking(bool NewCurrentlyAttacking)
 {
-	Super::ResetCurrentlyAttacking();
+	Super::SetCurrentlyAttacking(NewCurrentlyAttacking);
 	ChasePlayer();
 }
 

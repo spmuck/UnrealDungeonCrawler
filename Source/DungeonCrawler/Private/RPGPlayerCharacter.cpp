@@ -63,6 +63,11 @@ void ARPGPlayerCharacter::Ability1()
 	ServerAbility1();
 }
 
+void ARPGPlayerCharacter::Ability2()
+{
+	ServerAbility2();
+}
+
 void ARPGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAxis("MoveForward", this,  &ARPGPlayerCharacter::MoveForward);
@@ -71,4 +76,5 @@ void ARPGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction<FBlockingDelegate>("Block", IE_Pressed, this, &ARPGPlayerCharacter::Blocking, true);
 	PlayerInputComponent->BindAction<FBlockingDelegate>("Block", IE_Released, this, &ARPGPlayerCharacter::Blocking, false);
 	PlayerInputComponent->BindAction("Ability1", IE_Pressed, this, &ARPGPlayerCharacter::Ability1);
+	PlayerInputComponent->BindAction("Ability2", IE_Pressed, this, &ARPGPlayerCharacter::Ability2);
 }

@@ -46,7 +46,9 @@ protected:
 	FVector StartLocation;
 	UPROPERTY()
 	FVector EndLocation;
-	
+	UPROPERTY(EditAnywhere, Category="Abilities")
+	float ShockwaveRadius = 300;
+
 	UFUNCTION()
 	void OnMeleeHitboxBeingOverlap(class UPrimitiveComponent* OverlappedComp,class AActor* OtherActor,class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -58,11 +60,15 @@ protected:
 	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable, Category="Animation")
 	void MultiDash();
 
+	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable, Category="Animation")
+	void MultiShockwave();
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	//overrides implementation of server rpc
 	virtual void ServerAbility1_Implementation() override;
+	virtual void ServerAbility2_Implementation() override;
 public:
 	UFUNCTION()
 	void ChangePrimaryHitboxCollisionType_Implementation(ECollisionEnabled::Type CollisionType) override;

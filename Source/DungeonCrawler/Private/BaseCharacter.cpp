@@ -64,6 +64,7 @@ void ABaseCharacter::TakeAnyDamage_Implementation(AActor* DamagedActor, float Da
 			MultiBlockedAttackFX();
 		}
 	}
+	//Any time any character takes damage, send out a multicast with the latest stats.
 	MultiCharacterStatsChanged(CharacterStats);
 }
 
@@ -106,6 +107,11 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ABaseCharacter::SetCurrentlyAttacking(bool NewCurrentlyAttacking)
+{
+	bCurrentlyAttacking = NewCurrentlyAttacking;
+}
+
 bool ABaseCharacter::IsDead()
 {
 	return bDead;
@@ -128,10 +134,6 @@ void ABaseCharacter::MultiBlockingStateChanged_Implementation(bool IsBlocking)
 	ReceiveBlockingStateChanged.Broadcast(IsBlocking);
 }
 
-void ABaseCharacter::ResetCurrentlyAttacking_Implementation()
-{
-	bCurrentlyAttacking = false;
-}
 
 FCharacterStats ABaseCharacter::GetCharacterStats()
 {
@@ -181,7 +183,8 @@ void ABaseCharacter::ServerPrimaryAttack_Implementation()
 	if (IsMovementEnabled())
 	{
 		bCurrentlyAttacking = true;
-		GetWorldTimerManager().SetTimer(TimerHandle_CurrentlyAttackingTImer, this, &ABaseCharacter::ResetCurrentlyAttacking, PrimaryAttackTime, false);
+		FTimerDelegate ResetCurrentlyAttackingDelegate = FTimerDelegate::CreateUObject(this, &ABaseCharacter::SetCurrentlyAttacking, false);
+		GetWorldTimerManager().SetTimer(TimerHandle_CurrentlyAttackingTImer, ResetCurrentlyAttackingDelegate, PrimaryAttackTime, false);
 		MultiPlayAnimMontageAndSound(AttackMontage, AttackSound, GetRandomSectionName(AttackMontageSections));
 	}
 	
