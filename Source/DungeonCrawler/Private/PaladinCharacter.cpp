@@ -77,26 +77,6 @@ void APaladinCharacter::ServerAbility2_Implementation()
 {
 	if(CastIfEnoughMana(20))
 	{
-		TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjectTypes;
-		TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
-
-		// Ignore any specific actors
-		TArray<AActor*> IgnoreActors;
-		// Ignore self or remove this line to not ignore any
-		IgnoreActors.Init(this, 1);
-		// Array of actors that are inside the radius of the sphere
-		TArray<AActor*> OutActors;
-		UClass* SearchClass = AEnemyAI::StaticClass();
-		UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetActorLocation(), ShockwaveRadius,TraceObjectTypes, SearchClass,IgnoreActors, OutActors);
-		
-		// Finally iterate over the outActor array
-		for (AActor* OverlappedActor : OutActors) {
-			AEnemyAI* EnemyAI = Cast<AEnemyAI>(OverlappedActor);
-			if(EnemyAI)
-			{
-				UGameplayStatics::ApplyDamage(EnemyAI, 100.0f,GetController(), this, UDamageType::StaticClass());
-			}
-		}
 		MultiShockwave();
 		bCurrentlyAttacking = true;
 		MultiCharacterStatsChanged(CharacterStats);
@@ -118,6 +98,33 @@ void APaladinCharacter::DashTimelineProgress(float Value)
 void APaladinCharacter::DashFinished()
 {
 	bCurrentlyAttacking = false;
+}
+
+void APaladinCharacter::ShockwaveDamage()
+{
+	if(HasAuthority())
+	{
+		TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjectTypes;
+		TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+
+		// Ignore any specific actors
+		TArray<AActor*> IgnoreActors;
+		// Ignore self or remove this line to not ignore any
+		IgnoreActors.Init(this, 1);
+		// Array of actors that are inside the radius of the sphere
+		TArray<AActor*> OutActors;
+		UClass* SearchClass = AEnemyAI::StaticClass();
+		UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetActorLocation(), ShockwaveRadius,TraceObjectTypes, SearchClass,IgnoreActors, OutActors);
+		
+		// Finally iterate over the outActor array
+		for (AActor* OverlappedActor : OutActors) {
+			AEnemyAI* EnemyAI = Cast<AEnemyAI>(OverlappedActor);
+			if(EnemyAI)
+			{
+				UGameplayStatics::ApplyDamage(EnemyAI, 100.0f,GetController(), this, UDamageType::StaticClass());
+			}
+		}
+	}
 }
 
 void APaladinCharacter::OnMeleeHitboxBeingOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

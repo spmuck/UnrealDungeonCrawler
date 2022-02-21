@@ -25,6 +25,10 @@ public:
 
 	UFUNCTION()
 	void DashFinished();
+
+	UFUNCTION(BlueprintCallable)
+	void ShockwaveDamage();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UBoxComponent* MeleeHitbox;
